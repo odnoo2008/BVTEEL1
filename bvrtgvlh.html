@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Бүртгүүлэх - EduCampus</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script> tailwind.config = { theme: { extend: { fontFamily: { display: ['Space Grotesk', 'sans-serif'], body: ['JetBrains Mono', 'sans-serif'], } } } } </script>
+  <style>
+    :root { --bg: #0A0F1A; --bg-alt: #111827; --bg-card: #151D2E; --fg: #F1F5F9; --fg-muted: #94A3B8; --accent: #F59E0B; --border: #1E293B; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'JetBrains Mono', monospace; background: var(--bg); color: var(--fg); min-height: 100vh; }
+    h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; }
+    .bg-grid { background-image: linear-gradient(rgba(245, 158, 11, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(245, 158, 11, 0.03) 1px, transparent 1px); background-size: 60px 60px; }
+    .input { width: 100%; padding: 14px 16px; border: 1px solid var(--border); border-radius: 12px; background: var(--bg-alt); color: var(--fg); font-family: inherit; font-size: 14px; transition: all 0.2s ease; }
+    .input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1); }
+    .btn-primary { width: 100%; padding: 14px; background: linear-gradient(135deg, var(--accent) 0%, #FBBF24 100%); color: #0A0F1A; border: none; border-radius: 12px; font-weight: 700; font-size: 15px; cursor: pointer; transition: all 0.3s ease; font-family: 'Space Grotesk', sans-serif; }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(245, 158, 11, 0.3); }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .animate-fade-in { animation: fadeIn 0.6s ease-out forwards; }
+  </style>
+</head>
+<body class="bg-grid">
+
+  <header class="w-full p-6 border-b border-[#1E293B]">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <a href="index.html" class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#F59E0B] to-[#FBBF24] flex items-center justify-center">
+          <svg class="w-5 h-5 text-[#0A0F1A]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+        </div>
+        <span class="text-lg font-bold font-['Space_Grotesk']">EduCampus</span>
+      </a>
+      <div class="flex items-center gap-4">
+        <span class="text-sm text-[#94A3B8] hidden sm:block">Бүртгэлтэй юу?</span>
+        <a href="login.html" class="px-4 py-2 border border-[#1E293B] rounded-lg text-sm font-medium hover:border-[#F59E0B] transition-colors">Нэвтрэх</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="py-12 px-6">
+    <div class="max-w-xl mx-auto animate-fade-in">
+      <div class="text-center mb-8">
+        <h1 class="text-3xl font-bold mb-2">Бүртгүүлэх</h1>
+        <p class="text-[#94A3B8]">Шинэ хэрэглэгчийн бүртгэл үүсгэх</p>
+      </div>
+
+      <div class="p-8 rounded-2xl border border-[#1E293B] bg-[#151D2E]">
+        <form id="registerForm" class="space-y-5">
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium mb-2 text-[#94A3B8]">Овог</label>
+              <input type="text" id="regLastName" class="input" placeholder="Овог" required>
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-2 text-[#94A3B8]">Нэр</label>
+              <input type="text" id="regFirstName" class="input" placeholder="Нэр" required>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2 text-[#94A3B8]">Имэйл</label>
+            <input type="email" id="regEmail" class="input" placeholder="email@example.com" required>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2 text-[#94A3B8]">Утас</label>
+            <input type="tel" id="regPhone" class="input" placeholder="+976 99XXXXXX" required>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2 text-[#94A3B8]">Хэрэглэгчийн төрөл</label>
+            <select id="regRole" class="input">
+              <option value="student">Сурагч</option>
+              <option value="teacher">Багш</option>
+              <option value="parent">Эцэг эх</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2 text-[#94A3B8]">Нууц үг</label>
+            <input type="password" id="regPassword" class="input" placeholder="8-с дээш тэмдэгт" required>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2 text-[#94A3B8]">Нууц үг давтах</label>
+            <input type="password" id="regConfirmPassword" class="input" placeholder="Нууц үгээ давтана уу" required>
+          </div>
+
+          <div class="flex items-start gap-3 pt-2">
+            <input type="checkbox" class="w-4 h-4 mt-1 rounded bg-[#111827] border-[#1E293B] focus:ring-[#F59E0B]" required>
+            <label class="text-xs text-[#94A3B8]">
+              Би <a href="#" class="text-[#F59E0B] hover:underline">үйлчилгээний нөхцөл</a> болон <a href="#" class="text-[#F59E0B] hover:underline">нууцлалын бодлогыг</a> уншиж, зөвшөөрч байна.
+            </label>
+          </div>
+
+          <button type="submit" class="btn-primary mt-4">Бүртгүүлэх</button>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    document.getElementById('registerForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const password = document.getElementById('regPassword').value;
+      const confirmPassword = document.getElementById('regConfirmPassword').value;
+      
+      if (password !== confirmPassword) {
+        alert('Нууц үг таарахгүй байна!');
+        return;
+      }
+
+      const btn = this.querySelector('button[type="submit"]');
+      btn.textContent = 'Бүртгэж байна...';
+      btn.disabled = true;
+      
+      // Хэрэглэгчийн мэдээллийг цуглуулах
+      const userData = {
+        firstName: document.getElementById('regFirstName').value,
+        lastName: document.getElementById('regLastName').value,
+        email: document.getElementById('regEmail').value,
+        phone: document.getElementById('regPhone').value,
+        role: document.getElementById('regRole').value,
+        password: password
+      };
+
+      setTimeout(() => {
+        // Мэдээллийг localStorage-д хадгалах (жишээ сансрын санах ойд)
+        let users = JSON.parse(localStorage.getItem('eduCampusUsers')) || {};
+        users[userData.email] = userData;
+        localStorage.setItem('eduCampusUsers', JSON.stringify(users));
+
+        alert('Амжилттай бүртгэгдлээ! Нэвтрэх хуудас руу шилжилж байна.');
+        window.location.href = 'login.html';
+      }, 1000);
+    });
+  </script>
+</body>
+</html>

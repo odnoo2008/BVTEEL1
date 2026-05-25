@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Админ самбар - EduCampus</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script> tailwind.config = { theme: { extend: { fontFamily: { display: ['Space Grotesk', 'sans-serif'], body: ['JetBrains Mono', 'sans-serif'], } } } } </script>
+  <style>
+    :root { --bg: #0A0F1A; --bg-alt: #111827; --bg-card: #151D2E; --fg: #F1F5F9; --fg-muted: #94A3B8; --accent: #F59E0B; --border: #1E293B; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'JetBrains Mono', monospace; background: var(--bg); color: var(--fg); min-height: 100vh; }
+    h1, h2, h3, h4 { font-family: 'Space Grotesk', sans-serif; }
+    .bg-grid { background-image: linear-gradient(rgba(245, 158, 11, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(245, 158, 11, 0.03) 1px, transparent 1px); background-size: 60px 60px; }
+    
+    .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; transition: all 0.3s ease; }
+    .card:hover { border-color: rgba(245, 158, 11, 0.3); }
+    
+    .nav-item { padding: 12px 16px; border-radius: 12px; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; gap: 12px; color: var(--fg-muted); font-size: 14px; }
+    .nav-item:hover { background: var(--bg-alt); color: var(--fg); }
+    .nav-item.active { background: rgba(245, 158, 11, 0.1); color: var(--accent); border: 1px solid rgba(245, 158, 11, 0.2); }
+    
+    .section { display: none; animation: fadeIn 0.4s ease-out; }
+    .section.active { display: block; }
+    
+    .input { width: 100%; padding: 12px 16px; border: 1px solid var(--border); border-radius: 10px; background: var(--bg-alt); color: var(--fg); font-family: inherit; font-size: 13px; }
+    .input:focus { outline: none; border-color: var(--accent); }
+    textarea.input { resize: vertical; min-height: 80px; }
+    
+    .btn-primary { padding: 10px 20px; background: linear-gradient(135deg, var(--accent) 0%, #FBBF24 100%); color: #0A0F1A; border: none; border-radius: 10px; font-weight: 700; font-size: 13px; cursor: pointer; transition: all 0.3s ease; font-family: 'Space Grotesk', sans-serif; }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3); }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Toast Мэдэгдэл */
+    .toast-container { position: fixed; top: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 12px; }
+    .toast { padding: 16px 24px; border-radius: 12px; background: var(--bg-card); border: 1px solid var(--accent); box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: flex; align-items: center; gap: 12px; animation: slideIn 0.4s ease-out forwards; min-width: 280px; }
+    .toast.removing { animation: slideOut 0.3s ease-in forwards; }
+    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    @keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
+  </style>
+</head>
+<body class="bg-grid flex">
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Mobile Menu Overlay -->
+  <div id="mobileMenuOverlay" class="fixed inset-0 bg-black/50 z-40 hidden lg:hidden" onclick="toggleMobileMenu()"></div>
+  
+  <!-- Mobile Sidebar -->
+  <aside id="mobileSidebar" class="fixed left-0 top-0 h-full w-64 border-r border-[#1E293B] bg-[#0A0F1A] p-6 flex flex-col z-50 transform -translate-x-full transition-transform duration-300 lg:hidden">
+    <div class="flex items-center justify-between mb-10">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#F59E0B] to-[#FBBF24] flex items-center justify-center"><svg class="w-5 h-5 text-[#0A0F1A]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg></div>
+        <span class="text-lg font-bold font-['Space_Grotesk']">EduCampus</span>
+      </div>
+      <button onclick="toggleMobileMenu()" class="text-[#94A3B8] hover:text-white"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+    </div>
+    <nav class="flex-1 space-y-2" id="mobileNav">
+      <div class="nav-item active" onclick="showSection('dashboard'); toggleMobileMenu()"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>Ерөнхий</div>
+      <div class="nav-item" onclick="showSection('students'); toggleMobileMenu()"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>Сурагч бүртгэх</div>
+      <div class="nav-item" onclick="showSection('teachers'); toggleMobileMenu()"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>Багш бүртгэх</div>
+      <div class="nav-item" onclick="showSection('classes'); toggleMobileMenu()"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>Анги үүсгэх</div>
+      <div class="nav-item" onclick="showSection('courses'); toggleMobileMenu()"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>Хичээл удирдах</div>
+      <div class="nav-item" onclick="showSection('reports'); toggleMobileMenu()"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>Тайлан гаргах</div>
+    </nav>
+  </aside>
+
+  <!-- Desktop Sidebar -->
+  <aside class="w-64 h-screen sticky top-0 border-r border-[#1E293B] bg-[#0A0F1A] p-6 flex-col hidden lg:flex">
+    <div class="flex items-center gap-3 mb-10">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#F59E0B] to-[#FBBF24] flex items-center justify-center"><svg class="w-5 h-5 text-[#0A0F1A]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg></div>
+      <span class="text-lg font-bold font-['Space_Grotesk']">EduCampus</span>
+    </div>
+    
+    <nav class="flex-1 space-y-2" id="desktopNav">
+      <div class="nav-item active" onclick="showSection('dashboard')"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>Ерөнхий</div>
+      <div class="nav-item" onclick="showSection('students')"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>Сурагч бүртгэх</div>
+      <div class="nav-item" onclick="showSection('teachers')"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>Багш бүртгэх</div>
+      <div class="nav-item" onclick="showSection('classes')"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>Анги үүсгэх</div>
+      <div class="nav-item" onclick="showSection('courses')"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>Хичээл удирдах</div>
+      <div class="nav-item" onclick="showSection('reports')"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>Тайлан гаргах</div>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="flex-1 h-screen overflow-y-auto">
+    <!-- Top Header -->
+    <header class="sticky top-0 z-30 bg-[#0A0F1A]/80 backdrop-blur-md border-b border-[#1E293B] p-4 sm:p-6 flex justify-between items-center">
+      <div class="flex items-center gap-4">
+        <button onclick="toggleMobileMenu()" class="lg:hidden p-2 rounded-lg text-[#94A3B8] hover:bg-[#111827] transition-colors"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+        <div>
+          <h1 class="text-xl sm:text-2xl font-bold">Админ удирдлага</h1>
+          <p class="text-xs sm:text-sm text-[#94A3B8] hidden sm:block">Системийн бүх үйл ажиллагааг хянах</p>
+        </div>
+      </div>
+      <button onclick="logout()" class="px-3 py-2 sm:px-4 border border-[#1E293B] rounded-lg text-xs sm:text-sm hover:border-red-500 hover:text-red-500 transition-colors">Гарах</button>
+    </header>
+
+    <main class="p-4 sm:p-6 lg:p-8 space-y-8">
+      
+      <!-- 1. Dashboard -->
+      <div id="sec-dashboard" class="section active">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-8">
+          <div class="card p-5"><p class="text-xs text-[#94A3B8] mb-1">Нийт сурагчид</p><p class="text-2xl font-bold text-[#F59E0B]">324</p></div>
+          <div class="card p-5"><p class="text-xs text-[#94A3B8] mb-1">Нийт багш</p><p class="text-2xl font-bold text-blue-400">28</p></div>
+          <div class="card p-5"><p class="text-xs text-[#94A3B8] mb-1">Нийт анги</p><p class="text-2xl font-bold text-green-400">12</p></div>
+          <div class="card p-5"><p class="text-xs text-[#94A3B8] mb-1">Идэвхтэй хичээл</p><p class="text-2xl font-bold text-purple-400">45</p></div>
+        </div>
+      </div>
+
+      <!-- 2. Сурагч бүртгэх -->
+      <div id="sec-students" class="section">
+        <h2 class="text-xl font-bold mb-6">Шинэ сурагч бүртгэх</h2>
+        <div class="grid lg:grid-cols-3 gap-6">
+          <div class="lg:col-span-1 card p-6">
+            <form class="space-y-4">
+              <div class="grid grid-cols-2 gap-4">
+                <div><label class="block text-xs text-[#94A3B8] mb-1">Овог</label><input type="text" class="input" required></div>
+                <div><label class="block text-xs text-[#94A3B8] mb-1">Нэр</label><input type="text" class="input" required></div>
+              </div>
+              <div><label class="block text-xs text-[#94A3B8] mb-1">Имэйл</label><input type="email" class="input" required></div>
+              <div><label class="block text-xs text-[#94A3B8] mb-1">Нууц үг</label><input type="password" class="input" required></div>
+              <div><label class="block text-xs text-[#94A3B8] mb-1">Анги</label><select class="input"><option>10А</option><option>10Б</option><option>11А</option></select></div>
+              <button type="button" onclick="showToast('Сурагч амжилттай бүртгэгдлээ!')" class="btn-primary w-full">Бүртгэх</button>
+            </form>
+          </div>
+          <div class="lg:col-span-2 card overflow-x-auto">
+            <table class="w-full text-left text-sm min-w-[500px]">
+              <thead class="bg-[#111827] text-[#94A3B8]"><tr><th class="p-4">Нэр</th><th class="p-4">Имэйл</th><th class="p-4">Анги</th><th class="p-4">Үйлдэл</th></tr></thead>
+              <tbody>
+                <tr class="border-t border-[#1E293B]"><td class="p-4 font-medium">Д. Бат</td><td class="p-4 text-[#94A3B8]">bat@example.com</td><td class="p-4"><span class="px-2 py-1 bg-[#111827] rounded-md text-xs">10А</span></td><td class="p-4"><button class="text-red-400 hover:text-red-300 text-xs">Устгах</button></td></tr>
+                <tr class="border-t border-[#1E293B]"><td class="p-4 font-medium">М. Саруул</td><td class="p-4 text-[#94A3B8]">sarul@example.com</td><td class="p-4"><span class="px-2 py-1 bg-[#111827] rounded-md text-xs">10А</span></td><td class="p-4"><button class="text-red-400 hover:text-red-300 text-xs">Устгах</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. Багш бүртгэх -->
+      <div id="sec-teachers" class="section">
+        <h2 class="text-xl font-bold mb-6">Шинэ багш бүртгэх</h2>
+        <div class="grid lg:grid-cols-3 gap-6">
+          <div class="lg:col-span-1 card p-6">
+            <form class="space-y-4">
+              <div class="grid grid-cols-2 gap-4">
+                <div><label class="block text-xs text-[#94A3B8] mb-1">Овог</label><input type="text" class="input" required></div>
+                <div><label class="block text-xs text-[#94A3B8] mb-1">Нэр</label><input type="text" class="input" required></div>
+              </div>
+              <div><label class="block text-xs text-[#94A3B8] mb-1">Имэйл</label><input type="email" class="input" required></div>
+              <div><label class="block text-xs text-[#94A3B8] mb-1">Нууц үг</label><input type="password" class="input" required></div>
+              <div><label class="block text-xs text-[#94A3B8] mb-1">Зааварлах хичээл</label><select class="input"><option>Математик</option><option>Физик</option><option>Монгол хэл</option></select></div>
+              <button type="button" onclick="showToast('Багш амжилттай бүртгэгдлээ!')" class="btn-primary w-full">Бүртгэх</button>
+            </form>
+          </div>
+          <div class="lg:col-span-2 card overflow-x-auto">
+            <table class="w-full text-left text-sm min-w-[500px]">
+              <thead class="bg-[#111827] text-[#94A3B8]"><tr><th class="p-4">Нэр</th><th class="p-4">Имэйл</th><th class="p-4">Хичээл</th><th class="p-4">Үйлдэл</th></tr></thead>
+              <tbody>
+                <tr class="border-t border-[#1E293B]"><td class="p-4 font-medium">Д. Батбаяр</td><td class="p-4 text-[#94A3B8]">batbayar@example.com</td><td class="p-4"><span class="px-2 py-1 bg-[#111827] rounded-md text-xs">Математик</span></td><td class="p-4"><button class="text-red-400 hover:text-red-300 text-xs">Устгах</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. Анги үүсгэх -->
+      <div id="sec-classes" class="section">
+        <h2 class="text-xl font-bold mb-6">Шинэ анги үүсгэх</h2>
+        <div class="grid lg:grid-cols-3 gap-6">
+          <div class="lg:col-span-1 card p-6">
+            <form class="space-y-4">
+              <div><label class="block text-xs text-[#94A3B8] mb-1">Ангийн нэр</label><input type="text" class="input" placeholder="Жнь: 10А анги" required></div>
+              <div><label class="block text-xs text-[#94A3B8] mb-1">Анги удирдагч</label><select class="input"><option>Д. Батбаяр</option><option>С. Очир</option></select></div>
+              <div><label class="block text-xs text-[#94A3B8] mb-1">Тайлбар</label><textarea class="input" placeholder="Ангийн тухай дэлгэрэнгүй..."></textarea></div>
+              <button type="button" onclick="showToast('Анги амжилттай үүслээ!')" class="btn-primary w-full">Үүсгэх</button>
+            </form>
+          </div>
+          <div class="lg:col-span-2 grid sm:grid-cols-2 gap-4">
+            <div class="card p-5 flex flex-col justify-between">
+              <div><h3 class="font-bold text-lg mb-1">10А анги</h3><p class="text-xs text-[#94A3B8]">Анги удирдагч: Д. Батбаяр</p></div>
+              <div class="mt-4 flex justify-between items-center text-sm"><span class="text-[#F59E0B]">32 сурагч</span><button class="text-red-400 hover:text-red-300 text-xs">Устгах</button></div>
+            </div>
+            <div class="card p-5 flex flex-col justify-between">
+              <div><h3 class="font-bold text-lg mb-1">10Б анги</h3><p class="text-xs text-[#94A3B8]">Анги удирдагч: С. Очир</p></div>
+              <div class="mt-4 flex justify-between items-center text-sm"><span class="text-[#F59E0B]">30 сурагч</span><button class="text-red-400 hover:text-red-300 text-xs">Устгах</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. Хичээл удирдах -->
+      <div id="sec-courses" class="section">
+        <h2 class="text-xl font-bold mb-6">Хичээл нэмэх & удирдах</h2>
+        <div class="grid lg:grid-cols-3 gap-6">
+          <div class="lg:col-span-1 card p-6">
+            <form class="space-y-4">
+              <div><label class="block text-xs text-[#94A3B8] mb-1">Хичээлийн нэр</label><input type="text" class="input" required></div>
+              <div><label class="block text-xs text-[#94A3B8] mb-1">Багш</label><select class="input"><option>Д. Батбаяр</option><option>С. Очир</option></select></div>
+              <div><label class="block text-xs text-[#94A3B8] mb-1">Ангиуд</label><select multiple class="input h-24"><option>10А</option><option>10Б</option><option>11А</option></select></div>
+              <button type="button" onclick="showToast('Хичээл амжилттай нэмэгдлээ!')" class="btn-primary w-full">Нэмэх</button>
+            </form>
+          </div>
+          <div class="lg:col-span-2 card overflow-x-auto">
+            <table class="w-full text-left text-sm min-w-[500px]">
+              <thead class="bg-[#111827] text-[#94A3B8]"><tr><th class="p-4">Хичээл</th><th class="p-4">Багш</th><th class="p-4">Үйлдэл</th></tr></thead>
+              <tbody>
+                <tr class="border-t border-[#1E293B]"><td class="p-4 font-medium">Математик</td><td class="p-4 text-[#94A3B8]">Д. Батбаяр</td><td class="p-4"><button class="text-red-400 hover:text-red-300 text-xs">Устгах</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6. Тайлан гаргах -->
+      <div id="sec-reports" class="section">
+        <h2 class="text-xl font-bold mb-6">Тайлан гаргах</h2>
+        <div class="grid lg:grid-cols-3 gap-6">
+          <div class="card p-6 space-y-4">
+            <h3 class="font-bold">Шүүлтүүр</h3>
+            <div><label class="block text-xs text-[#94A3B8] mb-1">Тайлангийн төрөл</label><select class="input"><option>Дүнгийн тайлан</option><option>Ирцийн тайлан</option><option>Хичээлийн гүйцэтгэл</option></select></div>
+            <div><label class="block text-xs text-[#94A3B8] mb-1">Анги</label><select class="input"><option>Бүх анги</option><option>10А</option><option>10Б</option></select></div>
+            <div class="grid grid-cols-2 gap-4">
+              <div><label class="block text-xs text-[#94A3B8] mb-1">Эхлэх</label><input type="date" class="input"></div>
+              <div><label class="block text-xs text-[#94A3B8] mb-1">Дуусах</label><input type="date" class="input"></div>
+            </div>
+            <button type="button" onclick="showToast('Тайлан амжилттай үүсгэгдлээ!')" class="btn-primary w-full">Тайлан татах</button>
+          </div>
+          <div class="lg:col-span-2 card p-6">
+            <h3 class="font-bold mb-4">Тайлангийн урьдчилсан харагдац</h3>
+            <div class="space-y-4">
+              <div class="p-4 bg-[#111827] rounded-xl flex justify-between items-center">
+                <div><h4 class="text-sm font-bold">10А - Дүнгийн дундаж</h4><p class="text-xs text-[#94A3B8]">Математик: 85% | Физик: 78%</p></div>
+                <span class="text-[#F59E0B] font-bold">81.5%</span>
+              </div>
+              <div class="p-4 bg-[#111827] rounded-xl flex justify-between items-center">
+                <div><h4 class="text-sm font-bold">10Б - Ирцийн хувь</h4><p class="text-xs text-[#94A3B8]">Энэ сарын ирц</p></div>
+                <span class="text-green-400 font-bold">95%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <script>
+    // --- Toast Мэдэгдэл гаргах ---
+    function showToast(message) {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.innerHTML = `
+        <svg class="w-5 h-5 text-[#F59E0B] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span class="text-sm">${message}</span>
+      `;
+      container.appendChild(toast);
+      setTimeout(() => { toast.classList.add('removing'); toast.addEventListener('animationend', () => toast.remove()); }, 3000);
+    }
+
+    // --- Mobile Menu Toggle ---
+    function toggleMobileMenu() {
+      document.getElementById('mobileSidebar').classList.toggle('-translate-x-full');
+      document.getElementById('mobileMenuOverlay').classList.toggle('hidden');
+    }
+
+    // --- Хуудас холбогч (Navigation) ---
+    function showSection(sectionId) {
+      document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+      document.getElementById(`sec-${sectionId}`).classList.add('active');
+      
+      ['desktopNav', 'mobileNav'].forEach(navId => {
+        const navContainer = document.getElementById(navId);
+        if(navContainer) {
+          navContainer.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+          const sectionMap = ['dashboard', 'students', 'teachers', 'classes', 'courses', 'reports'];
+          const index = sectionMap.indexOf(sectionId);
+          if(navContainer.querySelectorAll('.nav-item')[index]) navContainer.querySelectorAll('.nav-item')[index].classList.add('active');
+        }
+      });
+    }
+
+    // --- Системээс гарах ---
+    function logout() {
+      localStorage.removeItem('eduCampusCurrentSession');
+      window.location.href = './login.html';
+    }
+
+    // --- Хуудас ачаалагдах үед ---
+    window.onload = () => {
+      const session = JSON.parse(localStorage.getItem('eduCampusCurrentSession'));
+      if (!session || session.role !== 'admin') {
+        // Хэрэв админ эрхээр нэвтрээгүй бол login руу шилжүүлэх
+        window.location.href = './login.html';
+        return;
+      }
+    }
+  </script>
+</body>
+</html>
